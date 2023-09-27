@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  /* Reset some default styles */
+  body {
+    margin: 20px;
+    padding: 0;
+    display: float;
+    justify-content: center;
+    align-items: center;
+    background-color: #C4C0AA;
+    font-family: sans-serif;
+  }
+
+  .container {
+    max-width: 500px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #calendar {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    background-color: white;
+    padding: 20px;
+  }
+
+  .square {
+    font-size: 30px;
+    cursor: pointer;
+  }
+
+  #copyBtn {
+  background-color: WHITE;
+  font-size: 20px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 10px;
+  }
+
+  #copyBtn:hover {
+  background-color: YELLOW;
+  }
+
+
+
+  }
+</style>
+</head>
+<body>
+    <h1>  Emoji Calendar  </h1>
+      <h3>  Click the time slots when you are available</h3>
+<div class="container">
+  <div id="calendar"></div>
+  <div class="time-column" id="timeColumn"></div>
+</div>
+
+<button id="copyBtn">Copy to Clipboard</button>
+
+<script>
+  const calendar = document.getElementById('calendar');
+  const timeColumn = document.getElementById('timeColumn');
+  const copyButton = document.getElementById('copyBtn');
+  const tooltip = document.getElementById('copyTooltip');
+
+  const calendarState = [];
+
+  function toggleEmoji(index) {
+    const square = calendarState[index];
+    square.textContent = square.textContent === '⬜️' ? '🟩' : '⬜️';
+  }
+
+  function copyToClipboard() {
+    const emojiText = calendarState.map((square, index) => {
+      if (index % 8 === 0 && index !== 0) {
+        return `\n${square.textContent} ${daysOfWeek[index % 8]}`; // Add the day for the last square
+      }
+      return square.textContent;
+    }).join('');
+
+    navigator.clipboard.writeText(emojiText)
+      .then(() => {
+        tooltip.textContent = 'Copied!';
+        setTimeout(() => {
+          tooltip.textContent = 'Copy to Clipboard';
+        }, 1000);
+      })
+      .catch((error) => {
+        console.error('Failed to copy calendar: ', error);
+      });
+  }
+
+  const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const emojiGrid = [
+    ['⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️'],
+    ['⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️'],
+    ['⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️'],
+    ['⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️', '⬜️']
+  ];
+
+  for (let i = 0; i < 8; i++) {
+    const dayElement = document.createElement('div');
+    dayElement.className = 'square';
+    if (i === 0) {
+      dayElement.textContent = '';
+    } else {
+      dayElement.textContent = daysOfWeek[i - 1];
+    }
+    calendar.appendChild(dayElement);
+    calendarState.push(dayElement);
+
+    const timeSquare = document.createElement('div');
+    timeSquare.className = 'square';
+    timeSquare.textContent = '';
+    timeColumn.appendChild(timeSquare);
+  }
+
+  for (let row = 0; row < 16; row++) {
+  for (let col = 0; col < 8; col++) {
+    const square = document.createElement('div');
+    square.className = 'square';
+    if (col === 0) {
+      square.className = 'time-label';
+      let time = row + 8;
+      if (time >= 12) {
+        if (time === 12) {
+          square.textContent = `12 PM`;
+        } else {
+          time = (time % 12) || 12;
+          square.textContent = `${time} PM`;
+        }
+      } else {
+        square.textContent = `${time} AM`;
+      }
+    } else {
+      square.textContent = emojiGrid[row % 4][col - 1];
+    }
+    calendar.appendChild(square);
+    calendarState.push(square);
+    square.addEventListener('click', () => toggleEmoji(calendarState.indexOf(square)));
+  }
+}
+
+  copyButton.addEventListener('click', copyToClipboard);
+</script>
+</body>
+</html>
